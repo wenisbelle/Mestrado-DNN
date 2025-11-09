@@ -26,26 +26,15 @@ RUN apt-get install -y python3-rosdep \
 
 RUN apt-get install -y git
 
-RUN apt-get update
-
-RUN apt-get install -y python3-pip \
+RUN apt-get update && apt-get install -y python3-pip \
     python3-pip \
     python3-dev \
     python3-venv 
 
-RUN pip3 install --pre torch --index-url https://download.pytorch.org/whl/nightly/cu124
-RUN pip3 install tensorflow
-
-RUN pip3 install "numpy<2"
-RUN pip3 install "pybind11>=2.12"
-
-RUN python3 -c "import torch; print(torch.cuda.is_available())" && \
-    python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+RUN pip3 install ultralytics
 
 RUN apt-get update && apt-get install -y ros-humble-librealsense2* \
                         ros-humble-realsense2-*
-
-RUN pip3 install ultralytics
 
 RUN source /opt/ros/humble/setup.bash
 
@@ -54,11 +43,11 @@ WORKDIR /DDN
 COPY ./src /DDN/src
 
 ENV TERM=xterm
-RUN python3.11 -m venv vggt_env
+RUN python3 -m venv vggt_env
 
 RUN bash -c "source vggt_env/bin/activate && pip install --upgrade pip"
-RUN bash -c "source vggt_env/bin/activate && pip install -r requirements.txt"
-RUN bash -c "source vggt_env/bin/activate && pip install -r requirements_demo.txt"
+RUN bash -c "source vggt_env/bin/activate && pip install -r src/vggt/requirements.txt"
+RUN bash -c "source vggt_env/bin/activate && pip install -r src/vggt/requirements_demo.txt"
 
 
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \
