@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.1.1-base-ubuntu22.04
+FROM nvidia/cuda:12.4.0-base-ubuntu22.04
 
 # Minimal setup
 RUN apt-get update \
@@ -29,17 +29,36 @@ RUN apt-get install -y git
 RUN apt-get update
 
 RUN apt-get install -y python3-pip \
-    python3-dev 
-    
+    python3-pip \
+    python3-dev \
+    python3-venv 
+
+RUN pip3 install --pre torch --index-url https://download.pytorch.org/whl/nightly/cu124
+RUN pip3 install tensorflow
+
+RUN pip3 install "numpy<2"
+RUN pip3 install "pybind11>=2.12"
+
+RUN python3 -c "import torch; print(torch.cuda.is_available())" && \
+    python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+
 RUN apt-get update && apt-get install -y ros-humble-librealsense2* \
                         ros-humble-realsense2-*
 
+RUN pip3 install ultralytics
+
 RUN source /opt/ros/humble/setup.bash
+
 RUN mkdir -p /DDN/src
 WORKDIR /DDN
 COPY ./src /DDN/src
 
-RUN cd /DDN/src/vggt && pip install -r requirements.txt && pip install -r requirements_demo.txt
+ENV TERM=xterm
+RUN python3.11 -m venv vggt_env
+
+RUN bash -c "source vggt_env/bin/activate && pip install --upgrade pip"
+RUN bash -c "source vggt_env/bin/activate && pip install -r requirements.txt"
+RUN bash -c "source vggt_env/bin/activate && pip install -r requirements_demo.txt"
 
 
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \

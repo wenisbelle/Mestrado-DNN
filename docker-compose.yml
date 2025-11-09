@@ -6,6 +6,7 @@ services:
     container_name: dnn_container
     hostname: dnn_container
     runtime: nvidia
+    shm_size: '2g'
     environment:
       - QT_X11_NO_MITSHM=1
       - NVIDIA_DRIVER_CAPABILITIES=all
@@ -21,7 +22,7 @@ services:
 #      - /dev/video5:/dev/video5
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - ./src:/DDN/src:rw  # Mount the current directory as readable and writable
+      - ./src:/Vision_dev/src:rw  # Mount the current directory as readable and writable
 
     deploy:
       resources:
